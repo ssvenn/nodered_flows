@@ -1,0 +1,188 @@
+[
+    {
+        "id": "b888ec1c.fa0f4",
+        "type": "mqtt out",
+        "z": "b1cc3e84.7ca3c",
+        "name": "",
+        "topic": "homebridge/to/add",
+        "qos": "",
+        "retain": "",
+        "broker": "4f9cbf4d.2ab17",
+        "x": 430,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "a5822522.f788f8",
+        "type": "inject",
+        "z": "b1cc3e84.7ca3c",
+        "name": "add bedroom_blind_window",
+        "topic": "",
+        "payload": "{\"name\":\"bedroom_blind_window\",\"service_name\":\"blind\",\"service\":\"WindowCovering\",\"CurrentPosition\":{\"minStep\":5},\"TargetPosition\":{\"minStep\":5}}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 160,
+        "y": 60,
+        "wires": [
+            [
+                "b888ec1c.fa0f4"
+            ]
+        ]
+    },
+    {
+        "id": "9f8204b9.cfbe38",
+        "type": "mqtt in",
+        "z": "b1cc3e84.7ca3c",
+        "name": "bedroom_rollerblind_window_status",
+        "topic": "/house/bedroom/rollerblind_window/0/status",
+        "qos": "2",
+        "broker": "4f9cbf4d.2ab17",
+        "x": 160,
+        "y": 200,
+        "wires": [
+            [
+                "60b01aaf.9fea14"
+            ]
+        ]
+    },
+    {
+        "id": "60b01aaf.9fea14",
+        "type": "function",
+        "z": "b1cc3e84.7ca3c",
+        "name": "convert_homebridge",
+        "func": "var position = msg.payload;\n\nmsg.payload = {};\nmsg.payload.name = \"bedroom_blind_window\";\nmsg.payload.service_name = \"blind\";\nmsg.payload.characteristic = \"CurrentPosition\";\nmsg.payload.value = position;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 426,
+        "y": 200,
+        "wires": [
+            [
+                "523e44db.5ded1c"
+            ]
+        ]
+    },
+    {
+        "id": "523e44db.5ded1c",
+        "type": "mqtt out",
+        "z": "b1cc3e84.7ca3c",
+        "name": "homebridge/to/set",
+        "topic": "homebridge/to/set",
+        "qos": "",
+        "retain": "",
+        "broker": "4f9cbf4d.2ab17",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "f436f603.173f18",
+        "type": "mqtt in",
+        "z": "b1cc3e84.7ca3c",
+        "name": "homebridge/from/set",
+        "topic": "homebridge/from/set",
+        "qos": "2",
+        "broker": "4f9cbf4d.2ab17",
+        "x": 120,
+        "y": 360,
+        "wires": [
+            [
+                "96214bd9.9df398"
+            ]
+        ]
+    },
+    {
+        "id": "96214bd9.9df398",
+        "type": "json",
+        "z": "b1cc3e84.7ca3c",
+        "name": "",
+        "pretty": false,
+        "x": 310,
+        "y": 360,
+        "wires": [
+            [
+                "731cb2a0.666a9c"
+            ]
+        ]
+    },
+    {
+        "id": "731cb2a0.666a9c",
+        "type": "function",
+        "z": "b1cc3e84.7ca3c",
+        "name": "convert_to_nodeMCU",
+        "func": "var result = {};\nif(msg.payload.name == \"bedroom_blind_window\")\n    result.payload = msg.payload.value;\nreturn result;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 500,
+        "y": 360,
+        "wires": [
+            [
+                "610162f1.5d016c"
+            ]
+        ]
+    },
+    {
+        "id": "610162f1.5d016c",
+        "type": "mqtt out",
+        "z": "b1cc3e84.7ca3c",
+        "name": "bedroom_rollerblind_window_set",
+        "topic": "/house/bedroom/rollerblind_window/0/set",
+        "qos": "",
+        "retain": "",
+        "broker": "4f9cbf4d.2ab17",
+        "x": 760,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "86b238c4.fbdad8",
+        "type": "comment",
+        "z": "b1cc3e84.7ca3c",
+        "name": "This part runs once on startup to create the homekit item in homebridge ",
+        "info": "",
+        "x": 270,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "c1cfaa0.14d4358",
+        "type": "comment",
+        "z": "b1cc3e84.7ca3c",
+        "name": "Listen for position updates from the NodeMCU, convert it to the homebridge format and forward it",
+        "info": "",
+        "x": 357.5,
+        "y": 159,
+        "wires": []
+    },
+    {
+        "id": "daa9d0cd.8842c",
+        "type": "comment",
+        "z": "b1cc3e84.7ca3c",
+        "name": "Listen for a new set position from homebridge, convert and forward to the NodeMCU ",
+        "info": "",
+        "x": 320,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "4f9cbf4d.2ab17",
+        "type": "mqtt-broker",
+        "z": "",
+        "broker": "hab",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": ""
+    }
+]
